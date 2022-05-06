@@ -1,57 +1,57 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ViewMidel extends ChangeNotifier {}
-
-class ExampleWidget extends StatefulWidget {
-  const ExampleWidget({Key? key}) : super(key: key);
-
-  @override
-  State<ExampleWidget> createState() => _ExampleWidgetState();
-}
-
-class _ExampleWidgetState extends State<ExampleWidget> {
-  var _value = 0;
+class ViewModel extends ChangeNotifier {
+  var _age = 0;
+  int get age => _age;
 
   void loadValue() async {
     final sharedPreferences = await SharedPreferences.getInstance();
-    _value = sharedPreferences.getInt('age') ?? 0;
-    setState(() {});
+    _age = sharedPreferences.getInt('age') ?? 0;
+    notifyListeners();
   }
 
-  @override
-  void initState() {
-    super.initState();
+  ViewModel() {
     loadValue();
   }
 
+  Future<void> incrementAge() async {
+    _age += 1;
+    final sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setInt('age', _age);
+    notifyListeners();
+  }
+
+  Future<void> decrementAge() async {
+    _age = max(_age - 1, 0);
+    final sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setInt('age', _age);
+    notifyListeners();
+  }
+}
+
+class ExampleWidget extends StatelessWidget {
+  const ExampleWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<ViewModel>();
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('$_value'),
+              Text('${viewModel.age}'),
               ElevatedButton(
-                onPressed: () async {
-                  _value += 1;
-                  final sharedPreferences = await SharedPreferences.getInstance();
-                  sharedPreferences.setInt('age', _value);
-                  setState(() {});
-                },
+                onPressed: viewModel.incrementAge,
                 child: const Text('+'),
               ),
               ElevatedButton(
-                onPressed: () async {
-                  _value = max(_value - 1, 0);
-                  final sharedPreferences = await SharedPreferences.getInstance();
-                  sharedPreferences.setInt('age', _value);
-                  setState(() {});
-                },
+                onPressed: viewModel.decrementAge,
                 child: const Text('-'),
               ),
             ],
