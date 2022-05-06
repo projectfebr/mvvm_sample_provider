@@ -38,26 +38,57 @@ class ExampleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<ViewModel>();
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('${viewModel.age}'),
-              ElevatedButton(
-                onPressed: viewModel.incrementAge,
-                child: const Text('+'),
-              ),
-              ElevatedButton(
-                onPressed: viewModel.decrementAge,
-                child: const Text('-'),
-              ),
+            children: const [
+              _AgeTitle(),
+              _AgeIncrementWidget(),
+              _DecIncrementWidget(),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AgeTitle extends StatelessWidget {
+  const _AgeTitle({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final age = context.select((ViewModel vm) => vm.age);
+    return Text('$age');
+  }
+}
+
+class _AgeIncrementWidget extends StatelessWidget {
+  const _AgeIncrementWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = context.read<ViewModel>();
+
+    return ElevatedButton(
+      onPressed: viewModel.incrementAge,
+      child: const Text('+'),
+    );
+  }
+}
+
+class _DecIncrementWidget extends StatelessWidget {
+  const _DecIncrementWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = context.read<ViewModel>();
+
+    return ElevatedButton(
+      onPressed: viewModel.decrementAge,
+      child: const Text(''),
     );
   }
 }
