@@ -1,48 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:mvvm_sample_provider/domain/services/user_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class User {
-  final int age;
-
-  User(this.age);
-
-  User copyWith({
-    int? age,
-  }) {
-    return User(
-      age ?? this.age,
-    );
-  }
-}
-
-class UserService {
-  var _user = User(0);
-  User get user => _user;
-
-  Future<void> loadValue() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final age = sharedPreferences.getInt('age') ?? 0;
-    _user = User(age);
-  }
-
-  Future<void> saveValue() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setInt('age', _user.age);
-  }
-
-  void incrementAge() {
-    _user = _user.copyWith(age: _user.age + 1);
-    saveValue();
-  }
-
-  void decrementAge() {
-    _user = _user.copyWith(age: max(_user.age - 1, 0));
-    saveValue();
-  }
-}
 
 class ViewModelState {
   final String ageTitle;
@@ -56,11 +14,11 @@ class ViewModelState {
 class ViewModel extends ChangeNotifier {
   final _userService = UserService();
 
-  var _state = ViewModelState(ageTitle: '');
+  var _state = const ViewModelState(ageTitle: '');
   ViewModelState get state => _state;
 
   Future<void> loadValue() async {
-    await _userService.loadValue();
+    await _userService.initialize();
     _updateState();
   }
 
